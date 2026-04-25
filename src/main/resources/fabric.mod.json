@@ -1,0 +1,38 @@
+{
+	"schemaVersion": 1,
+	"id": "simscraft",
+	"version": "${version}",
+	"name": "Sims Craft Mod",
+	"description": "This mod implements Sims necessity mechanics.",
+	"authors": [
+		"Me!"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/modid/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"dev.naranjarra.SimsCraft"
+		],
+		"client": [
+			"dev.naranjarra.client.SimsCraftClient"
+		]
+	},
+	"mixins": [
+		"simscraft.mixins.json",
+		{
+			"config": "simscraft.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.19.2",
+		"minecraft": "~26.1.2",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}
