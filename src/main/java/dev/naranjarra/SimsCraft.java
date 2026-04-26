@@ -1,10 +1,9 @@
 package dev.naranjarra;
 
-import dev.naranjarra.network.SimsStatsPayload;
+import dev.naranjarra.networking.payload.SimsStatsPayload;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
-import net.minecraft.resources.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +13,7 @@ public class SimsCraft implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        PayloadTypeRegistry.clientboundPlay().register(SimsStatsPayload.ID, SimsStatsPayload.CODEC);
         LOGGER.info("Sun sun!");
     }
 }

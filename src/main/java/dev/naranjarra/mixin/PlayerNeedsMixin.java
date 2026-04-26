@@ -1,5 +1,8 @@
 package dev.naranjarra.mixin;
 
+import dev.naranjarra.networking.payload.SimsStatsPayload;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -35,6 +38,14 @@ public class PlayerNeedsMixin {
 
             if (bladderLevel == 0) {
                 System.out.println("Meada historica chavalote.");
+                if (player instanceof ServerPlayer serverPlayer) {
+                    ServerPlayNetworking.send(serverPlayer, new SimsStatsPayload(hunger, bladderLevel));
+                }
+
+                //Si en un futuro necesito mandar a TODOS los jugadores:
+//                for (ServerPlayer serverPlayer : PlayerLookup.world((ServerLevel) player.level())) {
+//                    ServerPlayNetworking.send(serverPlayer, new SimsStatsPayload(15.5f, 42.0f));
+//                }
             }
             System.out.println("Hambre: " + hunger + " | Vejiga: " + bladderLevel);
         }
