@@ -19,7 +19,7 @@ public class SimsCraftClient implements ClientModInitializer {
 		HudTest.init();
 
 		KeyMapping.Category CATEGORY = KeyMapping.Category.register(
-				Identifier.fromNamespaceAndPath(SimsCraft.MOD_ID, "Sims Craft")
+				Identifier.fromNamespaceAndPath(SimsCraft.MOD_ID, "sims_craft")
 		);
 
 		KeyMapping sendToChatKey = KeyMappingHelper.registerKeyMapping(
