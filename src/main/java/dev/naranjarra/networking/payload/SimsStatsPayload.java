@@ -7,7 +7,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 
-public record SimsStatsPayload(float valor1, float valor2) implements CustomPacketPayload {
+public record SimsStatsPayload(float hunger, float bladder) implements CustomPacketPayload {
     //Le asigno un nombre al Payload para IDENTIFICARLO (En este caso lleva los stats)
     public static final Identifier SIMS_STATS_PAYLOAD_ID =
             Identifier.fromNamespaceAndPath(SimsCraft.MOD_ID, "sims_stats");
@@ -18,8 +18,8 @@ public record SimsStatsPayload(float valor1, float valor2) implements CustomPack
     //Codifica el Payload en Bytes para poder pasarlo por la red al cliente
     public static final StreamCodec<RegistryFriendlyByteBuf, SimsStatsPayload> CODEC =
             StreamCodec.composite(
-                    ByteBufCodecs.FLOAT, SimsStatsPayload::valor1,    // Primer float
-                    ByteBufCodecs.FLOAT, SimsStatsPayload::valor2,    // Segundo float
+                    ByteBufCodecs.FLOAT, SimsStatsPayload::hunger,    // Primer float
+                    ByteBufCodecs.FLOAT, SimsStatsPayload::bladder,    // Segundo float
                     SimsStatsPayload::new                            // Constructor
             );
 

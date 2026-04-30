@@ -15,6 +15,7 @@ import net.minecraft.util.Util;
 
 public class HudTest {
     private static float valorRecibido = 0.0f;
+    public static boolean isMenuOpen = false;
 
     public static void init() {
         HudElementRegistry.attachElementBefore(
@@ -25,26 +26,59 @@ public class HudTest {
     }
 
     public static void updateValue(float nuevoValor) {
+        System.out.println("El nuevo valor es " + nuevoValor);
         valorRecibido = nuevoValor;
     }
 
     private static void extract(GuiGraphicsExtractor graphics, DeltaTracker tickCounter) {
-        int color = 0xFFFF0000; // Red
-        int targetColor = 0xFF00FF00; // Green
+        if(!isMenuOpen) return;
 
-        // You can use the Util.getMillis() function to get the current time in milliseconds.
-        // Divide by 1000 to get seconds.
-        double currentTime = Util.getMillis() / 1000.0;
+        // 1. Configuramos las dimensiones y posición de tu barra
+        int x = 10;
+        int y = 20;
+        int maxWidth = 100; // Ancho de la barra cuando está al 100%
+        int height = 8;     // Grosor de la barra
 
-        // "lerp" simply means "linear interpolation", which is a fancy way of saying "blend".
-        float lerpedAmount = Mth.abs(Mth.sin((float) currentTime));
-        int lerpedColor = ARGB.linearLerp(lerpedAmount, color, targetColor);
+        // La vejiga va de 0 a 20
+        float maxValor = 20.0f;
+
+        // Evitamos que el valor se pase de mambo y rompa el gráfico (Clamp)
+        float currentValor = Mth.clamp(valorRecibido, 0.0f, maxValor);
+
+        // Calculamos qué tan ancha debe ser la barra de color
+        // Regla de tres: (Valor actual / Valor máximo) * Ancho total
+        int fillWidth = (int) ((currentValor / maxValor) * maxWidth);
+
+        // 3. Definimos los colores en ARGB Hexadecimal (Alpha, Red, Green, Blue)
+        int colorFondo = 0xFF444444; // Un gris oscuro para el fondo
+        int colorTexto = 0xFFFFFFFF; // Blanco
+
+        // Dibujamos el rectángulo de FONDO (La barra vacía)
+        // El metodo fill usa coordenadas: (x1, y1, x2, y2, color)
+        graphics.fill(x, y, x + maxWidth, y + height, colorFondo);
+
+        // Dibujamos el rectángulo de RELLENO (La barra llena)
+        // Solo lo dibujamos si hay algo que rellenar
+        // 1. Sacamos el porcentaje actual (de 0.0 a 1.0)
+        float porcentaje = currentValor / maxValor;
+        int colorBarra;
+
+        // 2. Definimos el color según qué tan baja esté la stat
+        if (porcentaje >= 0.5f) {
+            colorBarra = 0xFF2ECC71; // Verde (Normal - Más del 50%)
+        } else if (porcentaje >= 0.2f) {
+            colorBarra = 0xFFF1C40F; // Amarillo (Precaución - Entre 20% y 50%)
+        } else {
+            colorBarra = 0xFFE74C3C; // Rojo (Crítico - F en el chat, menos del 20%)
+        }
+
+        // 3. Dibujamos el relleno con el color dinámico que elegimos
+        if (fillWidth > 0) {
+            graphics.fill(x, y, x + fillWidth, y + height, colorBarra);
+        }
+
+        // 6. (Opcional) Clavamos un texto al lado para que no sea solo una barra flotando
         Font font = Minecraft.getInstance().font;
-
-        String texto = String.valueOf(valorRecibido);
-
-        // Draw a square with the lerped color.
-        // x1, x2, y1, y2, color
-        graphics.text(font, texto, 0, 0, 0xFFFFFFFF, true);
+        graphics.text(font, "Vejiga", x, y - 10, colorTexto, false);
     }
 }
