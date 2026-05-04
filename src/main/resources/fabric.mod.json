@@ -16,7 +16,7 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"dev.naranjarra.SimsCraft"
+          "dev.naranjarra.SimsCraftServer"
 		],
 		"client": [
 			"dev.naranjarra.client.SimsCraftClient"

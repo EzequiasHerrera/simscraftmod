@@ -1,7 +1,6 @@
 package dev.naranjarra.client.hud;
 
-import dev.naranjarra.SimsCraft;
-import net.fabricmc.api.ClientModInitializer;
+import dev.naranjarra.SimsCraftServer;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.minecraft.client.DeltaTracker;
@@ -9,9 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
-import net.minecraft.util.Util;
 
 public class HudTest {
     private static float valorRecibido = 0.0f;
@@ -20,7 +17,7 @@ public class HudTest {
     public static void init() {
         HudElementRegistry.attachElementBefore(
                 VanillaHudElements.OVERLAY_MESSAGE,
-                Identifier.fromNamespaceAndPath(SimsCraft.MOD_ID, "before_chat"),
+                Identifier.fromNamespaceAndPath(SimsCraftServer.MOD_ID, "before_chat"),
                 HudTest::extract
         );
     }
