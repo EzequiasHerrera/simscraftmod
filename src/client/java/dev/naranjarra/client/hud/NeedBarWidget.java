@@ -6,7 +6,7 @@ import net.minecraft.util.Mth;
 
 public class NeedBarWidget {
     public static void draw(GuiGraphicsExtractor graphics, Font font, String label, float current, float max, int x, int y) {
-        int maxWidth = 100;
+        int maxWidth = 50;
         int height = 8;
 
         float percentage = Mth.clamp(current / max, 0f, 1f);
@@ -24,6 +24,6 @@ public class NeedBarWidget {
             graphics.fill(x, y, x + fillWidth, y + height, colorBarra);
         }
         // Dibujar texto
-        graphics.text(font, label, x, y - 10, 0xFFFFFFFF, false);
+        graphics.text(font, label, x, y - 10, 0xFF10183F, false);
     }
 }

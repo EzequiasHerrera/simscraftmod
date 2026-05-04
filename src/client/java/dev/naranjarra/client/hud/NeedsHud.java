@@ -9,11 +9,15 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
 
 public class NeedsHud {
     private static PlayerNeeds needs = new PlayerNeeds(20,20,20,20,20,20);
     public static boolean isMenuOpen = false;
+
+    // 1. Definimos la textura UNA sola vez al cargar la clase
+    private static final Identifier PANEL_SPRITE = Identifier.fromNamespaceAndPath(SimsCraftServer.MOD_ID, "panel_bg");
 
     public static void init() {
         HudElementRegistry.attachElementBefore(
@@ -23,7 +27,6 @@ public class NeedsHud {
         );
     }
 
-    // TODO: Aquí debo colocar todos los needs faltantes y actualizarlos porque es la función que corre desde el server y se guardan en NeedsHud.bladder por ejemplo
     public static void updateNeedValues(NeedsPayload payload) {
         needs.update(payload.bladder(), payload.hunger());
     }
@@ -31,15 +34,36 @@ public class NeedsHud {
     private static void extract(GuiGraphicsExtractor graphics, DeltaTracker tickCounter) {
         if(!isMenuOpen) return;
 
-        // 1. Configuramos las dimensiones y posición de tu barra
-        int x = 10;
-        int y = 20;
+        Minecraft client = Minecraft.getInstance();
+        Font font = client.font;
+
+        // Dimensiones base
+        int screenWidth = client.getWindow().getGuiScaledWidth();
+        int screenHeight = client.getWindow().getGuiScaledHeight();
+
+        // Configuración de Layout
+        int barWidth = 100;
+        int barHeight = 8;
+        int margin = 10;
+        int padding = 8;
         int spacing = 25;
+        int cantBarras = 2; // Vejiga y Hambre
 
-        // Clavamos un texto al lado para que no sea solo una barra flotando
-        Font font = Minecraft.getInstance().font;
+        // Cálculo del Panel
+        int panelWidth = barWidth + (padding * 2);
+        int panelHeight = (cantBarras * spacing) + padding;
 
-        NeedBarWidget.draw(graphics, font, "Vejiga", needs.bladder(), 20, x, y);
-        NeedBarWidget.draw(graphics, font, "Hambre", needs.hunger(), 20, x, y);
+        int pX = screenWidth - panelWidth - margin;
+        int pY = screenHeight - panelHeight - margin;
+
+        // --- DIBUJO DEL PANEL DE FONDO (TU IMAGEN) ---
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, PANEL_SPRITE, pX, pY, panelWidth, panelHeight, -1);
+
+        // --- DIBUJO DE LAS BARRAS ---
+        int xBarras = pX + padding;
+        int yBase = (pY + panelHeight) - padding - barHeight;
+
+        NeedBarWidget.draw(graphics, font, "Vejiga", needs.bladder(), 20, xBarras, yBase);
+        NeedBarWidget.draw(graphics, font, "Hambre", needs.hunger(), 20, xBarras, yBase - spacing);
     }
 }
