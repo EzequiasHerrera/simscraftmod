@@ -30,7 +30,7 @@ public class KeyInputHandler {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (toggleMenuKey.consumeClick()) {
                 if (client.player != null) {
-                    HudTest.isMenuOpen = !HudTest.isMenuOpen;
+                    NeedsHud.isMenuOpen = !NeedsHud.isMenuOpen;
                 }
             }
         });

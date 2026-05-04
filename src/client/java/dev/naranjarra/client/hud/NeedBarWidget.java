@@ -4,7 +4,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.Mth;
 
-public class StatBarWidget {
+public class NeedBarWidget {
     public static void draw(GuiGraphicsExtractor graphics, Font font, String label, float current, float max, int x, int y) {
         int maxWidth = 100;
         int height = 8;

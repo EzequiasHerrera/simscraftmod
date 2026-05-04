@@ -1,6 +1,6 @@
 package dev.naranjarra;
 
-import dev.naranjarra.networking.payload.SimsStatsPayload;
+import dev.naranjarra.networking.payload.NeedsPayload;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
@@ -13,7 +13,9 @@ public class SimsCraftServer implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        PayloadTypeRegistry.clientboundPlay().register(SimsStatsPayload.ID, SimsStatsPayload.CODEC);
         LOGGER.info("Sun sun!");
+
+        //Registra el Payload (No lo inicia) y explica cómo decodificarlo del otro lado
+        PayloadTypeRegistry.clientboundPlay().register(NeedsPayload.ID, NeedsPayload.CODEC);
     }
 }

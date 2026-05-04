@@ -1,6 +1,6 @@
 package dev.naranjarra.mixin;
 
-import dev.naranjarra.networking.payload.SimsStatsPayload;
+import dev.naranjarra.networking.payload.NeedsPayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -13,23 +13,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Player.class)
 public class PlayerNeedsMixin {
     // ♦️ DEFINO TODAS LAS NECESIDADES DEL SIM ♦️
-
     //VEJIGA 🚽🪠🚾
     @Unique
     private float bladderLevel = 20.0f;
-
     //DIVERSIÓN 🎮🕹️
     @Unique
     private float funLevel = 20.0f;
-
     //SOCIAL 🗣️💬
     @Unique
     private float socialLevel = 20.0f;
-
     //ENERGÍA 🔋🪫
     @Unique
     private float energyLevel = 20.0f;
-
     //HIGIENE 🚿🧼🫧
     @Unique
     private float hygieneLevel = 20.0f;
@@ -67,7 +62,8 @@ public class PlayerNeedsMixin {
             }
 
             if (player instanceof ServerPlayer serverPlayer) {
-                ServerPlayNetworking.send(serverPlayer, new SimsStatsPayload(hunger, bladderLevel));
+                //TODO: reemplazar hunger y bladderLevel por un "JSON" de todas las needs JUNTAS
+                ServerPlayNetworking.send(serverPlayer, new NeedsPayload(hunger, bladderLevel));
             }
 
             tickCounter = 0;
