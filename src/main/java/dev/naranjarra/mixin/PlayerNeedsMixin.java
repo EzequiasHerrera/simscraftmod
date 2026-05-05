@@ -1,5 +1,6 @@
 package dev.naranjarra.mixin;
 
+import dev.naranjarra.needs.PlayerNeeds;
 import dev.naranjarra.networking.payload.NeedsPayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.level.ServerPlayer;
@@ -12,22 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Player.class)
 public class PlayerNeedsMixin {
-    // ♦️ DEFINO TODAS LAS NECESIDADES DEL SIM ♦️
-    //VEJIGA 🚽🪠🚾
-    @Unique
-    private float bladderLevel = 20.0f;
-    //DIVERSIÓN 🎮🕹️
-    @Unique
-    private float funLevel = 20.0f;
-    //SOCIAL 🗣️💬
-    @Unique
-    private float socialLevel = 20.0f;
-    //ENERGÍA 🔋🪫
-    @Unique
-    private float energyLevel = 20.0f;
-    //HIGIENE 🚿🧼🫧
-    @Unique
-    private float hygieneLevel = 20.0f;
+    PlayerNeeds needs = new PlayerNeeds(20, 20, 20,20,20,20);
 
     @Unique
     private int tickCounter = 0;
@@ -49,6 +35,8 @@ public class PlayerNeedsMixin {
         if (tickCounter >= 40) {
 
             int hunger = player.getFoodData().getFoodLevel();
+
+            needs
 
             if (bladderLevel > 0) {
                 bladderLevel -= 1.0f;

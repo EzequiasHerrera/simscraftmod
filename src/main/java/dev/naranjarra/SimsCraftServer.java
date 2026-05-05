@@ -2,7 +2,6 @@ package dev.naranjarra;
 
 import dev.naranjarra.networking.payload.NeedsPayload;
 import net.fabricmc.api.ModInitializer;
-
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

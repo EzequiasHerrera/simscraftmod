@@ -1,5 +1,7 @@
 package dev.naranjarra.needs;
 
+import org.spongepowered.asm.mixin.Unique;
+
 //Constructor
 public class PlayerNeeds {
     private float bladder;
@@ -13,10 +15,10 @@ public class PlayerNeeds {
     public PlayerNeeds(float bladder, float fun, float social, float energy, float hygiene, int hunger) {
         this.bladder = bladder;
         this.fun = fun;
-        this.social = 20;
-        this.energy = 20;
-        this.hygiene = 20;
-        this.hunger = 20;
+        this.social = social;
+        this.energy = energy;
+        this.hygiene = hygiene;
+        this.hunger = hunger;
     }
 
     // Getters
@@ -27,8 +29,27 @@ public class PlayerNeeds {
     public float hygiene() { return hygiene; }
     public int hunger() { return hunger; }
 
+    public void setBladder(float bladder) {
+        this.bladder = bladder;
+    }
+    public void setFun(float fun) {
+        this.fun = fun;
+    }
+    public void setSocial(float social) {
+        this.social = social;
+    }
+    public void setEnergy(float energy) {
+        this.energy = energy;
+    }
+    public void setHygiene(float hygiene) {
+        this.hygiene = hygiene;
+    }
+    public void setHunger(int hunger) {
+        this.hunger = hunger;
+    }
+
     // Actualización completa
-    public void update(float bladder, float fun) {
+    public void update(float bladder, float fun, float social, float energy, float hygiene, int hunger) {
         this.bladder = bladder;
         this.fun = fun;
         this.social = social;
