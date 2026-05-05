@@ -16,8 +16,16 @@ public class NeedsHud {
     private static PlayerNeeds needs = new PlayerNeeds(20,20,20,20,20,20);
     public static boolean isMenuOpen = false;
 
-    // 1. Definimos la textura UNA sola vez al cargar la clase
+    // 1. Definimos la textura UNA sola vez al cargar la clase ✅ REALMENTE LEE LA TEXTURA EN EL LUGAR CORRECTO ✅
     private static final Identifier PANEL_SPRITE = Identifier.fromNamespaceAndPath(SimsCraftServer.MOD_ID, "panel_bg");
+
+    // Declaramos los Identifiers de los íconos
+    private static final Identifier ICON_ENERGY = Identifier.fromNamespaceAndPath(SimsCraftServer.MOD_ID, "icon_energy");
+    private static final Identifier ICON_HUNGER = Identifier.fromNamespaceAndPath(SimsCraftServer.MOD_ID, "icon_hunger");
+    private static final Identifier ICON_BLADDER = Identifier.fromNamespaceAndPath(SimsCraftServer.MOD_ID, "icon_bladder");
+    private static final Identifier ICON_HYGIENE = Identifier.fromNamespaceAndPath(SimsCraftServer.MOD_ID, "icon_hygiene");
+    private static final Identifier ICON_SOCIAL = Identifier.fromNamespaceAndPath(SimsCraftServer.MOD_ID, "icon_social");
+    private static final Identifier ICON_FUN = Identifier.fromNamespaceAndPath(SimsCraftServer.MOD_ID, "icon_fun");
 
     public static void init() {
         HudElementRegistry.attachElementBefore(
@@ -42,12 +50,13 @@ public class NeedsHud {
         int screenHeight = client.getWindow().getGuiScaledHeight();
 
         // Configuración de Layout
-        int barWidth = 100;
+        int barWidth = 120;
         int barHeight = 8;
-        int margin = 10;
-        int padding = 8;
-        int spacing = 25;
-        int cantBarras = 2; // Vejiga y Hambre
+
+        int margin = 6;
+        int padding = 6;
+        int spacing = 28;
+        int cantBarras = 3; // Vejiga y Hambre
 
         // Cálculo del Panel
         int panelWidth = barWidth + (padding * 2);
@@ -63,7 +72,12 @@ public class NeedsHud {
         int xBarras = pX + padding;
         int yBase = (pY + panelHeight) - padding - barHeight;
 
-        NeedBarWidget.draw(graphics, font, "Vejiga", needs.bladder(), 20, xBarras, yBase);
-        NeedBarWidget.draw(graphics, font, "Hambre", needs.hunger(), 20, xBarras, yBase - spacing);
+        NeedBarWidget.draw(graphics, font, "Energy", needs.hunger(), 20, xBarras, yBase, ICON_ENERGY);
+        NeedBarWidget.draw(graphics, font, "Hunger", needs.hunger(), 20, xBarras, yBase - spacing, ICON_HUNGER);
+        NeedBarWidget.draw(graphics, font, "Bladder", needs.bladder(), 20, xBarras, yBase- (spacing * 2), ICON_BLADDER);
+
+        NeedBarWidget.draw(graphics, font, "Hygiene", needs.hunger(), 20, xBarras + (panelWidth/2), yBase - (spacing * 2), ICON_HYGIENE);
+        NeedBarWidget.draw(graphics, font, "Social", needs.hunger(), 20, xBarras + (panelWidth/2), yBase - spacing, ICON_SOCIAL);
+        NeedBarWidget.draw(graphics, font, "Fun", needs.hunger(), 20, xBarras + (panelWidth/2), yBase, ICON_FUN);
     }
 }
