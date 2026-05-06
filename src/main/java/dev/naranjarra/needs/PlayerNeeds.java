@@ -1,60 +1,34 @@
 package dev.naranjarra.needs;
 
-import org.spongepowered.asm.mixin.Unique;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
-//Constructor
-public class PlayerNeeds {
-    private float bladder;
-    private float fun;
-    private float social;
-    private float energy;
-    private float hygiene;
-    private int hunger;
+public record PlayerNeeds(float bladder, float fun, float social, float energy, float hygiene, int hunger) {
 
-    //Initialization
-    public PlayerNeeds(float bladder, float fun, float social, float energy, float hygiene, int hunger) {
-        this.bladder = bladder;
-        this.fun = fun;
-        this.social = social;
-        this.energy = energy;
-        this.hygiene = hygiene;
-        this.hunger = hunger;
-    }
+    // CODEC para guardar en el DISCO (Archivo .dat)
+    public static final Codec<PlayerNeeds> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.FLOAT.fieldOf("bladder").forGetter(PlayerNeeds::bladder),
+            Codec.FLOAT.fieldOf("fun").forGetter(PlayerNeeds::fun),
+            Codec.FLOAT.fieldOf("social").forGetter(PlayerNeeds::social),
+            Codec.FLOAT.fieldOf("energy").forGetter(PlayerNeeds::energy),
+            Codec.FLOAT.fieldOf("hygiene").forGetter(PlayerNeeds::hygiene),
+            Codec.INT.fieldOf("hunger").forGetter(PlayerNeeds::hunger)
+    ).apply(instance, PlayerNeeds::new));
 
-    // Getters
-    public float bladder() { return bladder; }
-    public float fun() { return fun; }
-    public float social() { return social; }
-    public float energy() { return energy; }
-    public float hygiene() { return hygiene; }
-    public int hunger() { return hunger; }
+    // STREAM_CODEC para enviar por RED (Sincronización)
+    public static final StreamCodec<RegistryFriendlyByteBuf, PlayerNeeds> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.FLOAT, PlayerNeeds::bladder,
+            ByteBufCodecs.FLOAT, PlayerNeeds::fun,
+            ByteBufCodecs.FLOAT, PlayerNeeds::social,
+            ByteBufCodecs.FLOAT, PlayerNeeds::energy,
+            ByteBufCodecs.FLOAT, PlayerNeeds::hygiene,
+            ByteBufCodecs.INT, PlayerNeeds::hunger,
+            PlayerNeeds::new
+    );
 
-    public void setBladder(float bladder) {
-        this.bladder = bladder;
-    }
-    public void setFun(float fun) {
-        this.fun = fun;
-    }
-    public void setSocial(float social) {
-        this.social = social;
-    }
-    public void setEnergy(float energy) {
-        this.energy = energy;
-    }
-    public void setHygiene(float hygiene) {
-        this.hygiene = hygiene;
-    }
-    public void setHunger(int hunger) {
-        this.hunger = hunger;
-    }
-
-    // Actualización completa
-    public void update(float bladder, float fun, float social, float energy, float hygiene, int hunger) {
-        this.bladder = bladder;
-        this.fun = fun;
-        this.social = social;
-        this.energy = energy;
-        this.hygiene = hygiene;
-        this.hunger = hunger;
-    }
+    // Instancia por defecto
+    public static final PlayerNeeds DEFAULT = new PlayerNeeds(20, 20, 20, 20, 20, 20);
 }

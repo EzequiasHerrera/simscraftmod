@@ -2,7 +2,6 @@ package dev.naranjarra.client.hud;
 
 import dev.naranjarra.SimsCraftServer;
 import dev.naranjarra.needs.PlayerNeeds;
-import dev.naranjarra.networking.payload.NeedsPayload;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.minecraft.client.DeltaTracker;
@@ -31,14 +30,16 @@ public class NeedsHud {
         HudElementRegistry.attachElementBefore(VanillaHudElements.OVERLAY_MESSAGE, Identifier.fromNamespaceAndPath(SimsCraftServer.MOD_ID, "before_chat"), NeedsHud::extract);
     }
 
-    public static void updateNeedValues(NeedsPayload payload) {
-        needs.update(payload.bladder(), payload.hunger());
-    }
-
     private static void extract(GuiGraphicsExtractor graphics, DeltaTracker tickCounter) {
         if (!isMenuOpen) return;
 
         Minecraft client = Minecraft.getInstance();
+        if (client.player == null) return;
+
+        // LEER los datos que llegaron automáticamente del servidor
+        // Agregamos el () -> antes del valor por defecto
+        PlayerNeeds currentNeeds = client.player.getAttachedOrCreate(SimsCraftServer.PLAYER_NEEDS, () -> PlayerNeeds.DEFAULT);
+
         Font font = client.font;
 
         // Dimensiones base
@@ -80,12 +81,12 @@ public class NeedsHud {
             graphics.fill(pX + 2, yGuia, pX + panelWidth - 2, yGuia + guiaHeight, colorGuia);
         }
 
-        NeedBarWidget.draw(graphics, font, "Energy", needs.hunger(), 20, xBarras, yBase, ICON_ENERGY);
-        NeedBarWidget.draw(graphics, font, "Hunger", needs.hunger(), 20, xBarras, yBase - spacing, ICON_HUNGER);
-        NeedBarWidget.draw(graphics, font, "Bladder", needs.bladder(), 20, xBarras, yBase - (spacing * 2), ICON_BLADDER);
+        NeedBarWidget.draw(graphics, font, "Energy", currentNeeds.energy(), 20, xBarras, yBase, ICON_ENERGY);
+        NeedBarWidget.draw(graphics, font, "Hunger", (float)currentNeeds.hunger(), 20, xBarras, yBase - spacing, ICON_HUNGER);
+        NeedBarWidget.draw(graphics, font, "Bladder", currentNeeds.bladder(), 20, xBarras, yBase - (spacing * 2), ICON_BLADDER);
 
-        NeedBarWidget.draw(graphics, font, "Hygiene", needs.hunger(), 20, xBarras + (panelWidth / 2), yBase - (spacing * 2), ICON_HYGIENE);
-        NeedBarWidget.draw(graphics, font, "Social", needs.hunger(), 20, xBarras + (panelWidth / 2), yBase - spacing, ICON_SOCIAL);
-        NeedBarWidget.draw(graphics, font, "Fun", needs.hunger(), 20, xBarras + (panelWidth / 2), yBase, ICON_FUN);
+        NeedBarWidget.draw(graphics, font, "Hygiene", currentNeeds.hygiene(), 20, xBarras + (panelWidth / 2), yBase - (spacing * 2), ICON_HYGIENE);
+        NeedBarWidget.draw(graphics, font, "Social", currentNeeds.social(), 20, xBarras + (panelWidth / 2), yBase - spacing, ICON_SOCIAL);
+        NeedBarWidget.draw(graphics, font, "Fun", currentNeeds.fun(), 20, xBarras + (panelWidth / 2), yBase, ICON_FUN);
     }
 }

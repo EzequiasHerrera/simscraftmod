@@ -1,5 +1,6 @@
 package dev.naranjarra.mixin;
 
+import dev.naranjarra.SimsCraftServer;
 import dev.naranjarra.needs.PlayerNeeds;
 import dev.naranjarra.networking.payload.NeedsPayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -18,40 +19,36 @@ public class PlayerNeedsMixin {
     @Unique
     private int tickCounter = 0;
 
-    // Función inyectada en CADA TICK al FINAL
     @Inject(method = "tick", at = @At("TAIL"))
     private void onTick(CallbackInfo ci) {
         Player player = (Player) (Object) this;
 
-        // Comprobación si es el lado del cliente o servidor
-        if (player.level().isClientSide()) {
-            return;
-        }
+        if (player.level().isClientSide()) return;
 
-        // SUMO ➕1️⃣ al contador de TICKS ⏱️
         tickCounter++;
 
-        //Si pasaron 40 ticks (20 segundos) envía los datos al client
-        if (tickCounter >= 40) {
+        if (tickCounter >= 40) { // Cada 2 segundos
+            // 1. OBTENER datos actuales (o los de por defecto si es nuevo)
+            PlayerNeeds current = player.getAttachedOrCreate(SimsCraftServer.PLAYER_NEEDS, () -> PlayerNeeds.DEFAULT);
 
-            int hunger = player.getFoodData().getFoodLevel();
+            // 2. CALCULAR nuevos valores (Inmutables: creamos uno nuevo) [cite: 143, 157, 331]
+            int actualHunger = player.getFoodData().getFoodLevel();
+            float newBladder = Math.max(0, current.bladder() - 1.0f);
 
-            needs
+            PlayerNeeds updated = new PlayerNeeds(
+                    newBladder,
+                    current.fun(),
+                    current.social(),
+                    current.energy(),
+                    current.hygiene(),
+                    actualHunger
+            );
 
-            if (bladderLevel > 0) {
-                bladderLevel -= 1.0f;
-            }
+            // 3. GUARDAR en el jugador (esto dispara la sincronización al cliente) [cite: 139, 153, 327]
+            player.setAttached(SimsCraftServer.PLAYER_NEEDS, updated);
 
-            if (bladderLevel == 0) {
-                System.out.println("Tu Sim se ha orinado.");
-                //Si en un futuro necesito mandar a TODOS los jugadores:
-                //for (ServerPlayer serverPlayer : PlayerLookup.world((ServerLevel) player.level())) {
-                //    ServerPlayNetworking.send(serverPlayer, new SimsStatsPayload(15.5f, 42.0f));
-            }
-
-            if (player instanceof ServerPlayer serverPlayer) {
-                //TODO: reemplazar hunger y bladderLevel por un "JSON" de todas las needs JUNTAS
-                ServerPlayNetworking.send(serverPlayer, new NeedsPayload(hunger, bladderLevel));
+            if (newBladder <= 0) {
+                System.out.println("¡Tu Sim se ha orinado!");
             }
 
             tickCounter = 0;
