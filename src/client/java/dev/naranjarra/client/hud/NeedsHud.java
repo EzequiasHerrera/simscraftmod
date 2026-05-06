@@ -37,7 +37,6 @@ public class NeedsHud {
         if (client.player == null) return;
 
         // LEER los datos que llegaron automáticamente del servidor
-        // Agregamos el () -> antes del valor por defecto
         PlayerNeeds currentNeeds = client.player.getAttachedOrCreate(SimsCraftServer.PLAYER_NEEDS, () -> PlayerNeeds.DEFAULT);
 
         Font font = client.font;
