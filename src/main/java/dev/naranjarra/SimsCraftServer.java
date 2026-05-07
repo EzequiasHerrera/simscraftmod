@@ -13,13 +13,12 @@ public class SimsCraftServer implements ModInitializer {
     public static final String MOD_ID = "simscraft";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
-    // Reemplaza el bloque del builder por este:
+    // 📄 REGISTRA una variable global de tipo PlayerNeeds
     public static final AttachmentType<PlayerNeeds> PLAYER_NEEDS = AttachmentRegistry.<PlayerNeeds>builder()
-            .persistent(PlayerNeeds.CODEC)
-            .copyOnDeath()
-            // NOTA: Ahora incluimos el STREAM_CODEC para que Fabric sepa cómo enviarlo por red
-            .syncWith(PlayerNeeds.STREAM_CODEC, AttachmentSyncPredicate.targetOnly())
-            .buildAndRegister(Identifier.fromNamespaceAndPath(MOD_ID, "player_needs"));
+            .persistent(PlayerNeeds.CODEC) // Es PERMANENTE
+            .copyOnDeath() // Es PERSISTENTE
+            .syncWith(PlayerNeeds.STREAM_CODEC, AttachmentSyncPredicate.targetOnly()) // SYNC AUTOMATICA solo al JUGADOR OBJETIVO (targetOnly())
+            .buildAndRegister(Identifier.fromNamespaceAndPath(MOD_ID, "player_needs")); // CREA y FIRMA el Post It
 
     @Override
     public void onInitialize() {

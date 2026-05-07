@@ -12,13 +12,10 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
 
 public class NeedsHud {
-    private static PlayerNeeds needs = new PlayerNeeds(20, 20, 20, 20, 20, 20);
     public static boolean isMenuOpen = false;
 
-    // 1. Definimos la textura UNA sola vez al cargar la clase ✅ REALMENTE LEE LA TEXTURA EN EL LUGAR CORRECTO ✅
+    // Definimos los Identifiers de los íconos y la textura del PANEL UNA sola vez al cargar la clase
     private static final Identifier PANEL_SPRITE = Identifier.fromNamespaceAndPath(SimsCraftServer.MOD_ID, "panel_bg");
-
-    // Declaramos los Identifiers de los íconos
     private static final Identifier ICON_ENERGY = Identifier.fromNamespaceAndPath(SimsCraftServer.MOD_ID, "icon_energy");
     private static final Identifier ICON_HUNGER = Identifier.fromNamespaceAndPath(SimsCraftServer.MOD_ID, "icon_hunger");
     private static final Identifier ICON_BLADDER = Identifier.fromNamespaceAndPath(SimsCraftServer.MOD_ID, "icon_bladder");
@@ -27,9 +24,16 @@ public class NeedsHud {
     private static final Identifier ICON_FUN = Identifier.fromNamespaceAndPath(SimsCraftServer.MOD_ID, "icon_fun");
 
     public static void init() {
-        HudElementRegistry.attachElementBefore(VanillaHudElements.OVERLAY_MESSAGE, Identifier.fromNamespaceAndPath(SimsCraftServer.MOD_ID, "before_chat"), NeedsHud::extract);
+        HudElementRegistry.attachElementBefore( //HudElementRegistry poneme el HUD justo antes del
+                VanillaHudElements.OVERLAY_MESSAGE, //OVERLAY MESSAGE ("Tu cama está obstruída")
+                Identifier.fromNamespaceAndPath( //simscraft:before_chat
+                        SimsCraftServer.MOD_ID,
+                        "before_chat"),
+                NeedsHud::extract //QUÉ DIBUJAR (Es un callback que se ejecuta cuando llegue el momento)
+        );
     }
 
+    // ✏️🌈 DIBUJADO DEL PANEL
     private static void extract(GuiGraphicsExtractor graphics, DeltaTracker tickCounter) {
         if (!isMenuOpen) return;
 

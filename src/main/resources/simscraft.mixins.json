@@ -3,7 +3,6 @@
 	"package": "dev.naranjarra.mixin",
 	"compatibilityLevel": "JAVA_25",
 	"mixins": [
-		"SimsCraftMixin",
 		"PlayerNeedsMixin"
 	],
 	"injectors": {

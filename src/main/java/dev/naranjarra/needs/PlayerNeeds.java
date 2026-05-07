@@ -7,8 +7,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
 public record PlayerNeeds(float bladder, float fun, float social, float energy, float hygiene, int hunger) {
-
-    // CODEC para guardar en el DISCO (Archivo .dat)
+    // 💾 CODEC para guardar en el DISCO (Archivo .dat) SE ASEGURA DE LA PERMANENCIA AÚN DESCONECTANDOSE
     //RecordCodecBuilder CREA y dicta COMO crear el CODEC
     //instance.group junta las piezas necesarias
     public static final Codec<PlayerNeeds> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -22,7 +21,7 @@ public record PlayerNeeds(float bladder, float fun, float social, float energy, 
             Codec.INT.fieldOf("hunger").forGetter(PlayerNeeds::hunger)
     ).apply(instance, PlayerNeeds::new)); //apply le enseña a Minecraft a como VOLVER a armar el objeto
 
-    // STREAM_CODEC para enviar por RED (Sincronización)
+    // 🚅 STREAM_CODEC MUY RAPIDO para enviar por RED (Sincronización)
     public static final StreamCodec<RegistryFriendlyByteBuf, PlayerNeeds> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.FLOAT, PlayerNeeds::bladder,
             ByteBufCodecs.FLOAT, PlayerNeeds::fun,
@@ -33,6 +32,13 @@ public record PlayerNeeds(float bladder, float fun, float social, float energy, 
             PlayerNeeds::new
     );
 
-    // Instancia por defecto
-    public static final PlayerNeeds DEFAULT = new PlayerNeeds(20, 20, 20, 20, 20, 20);
+    // 1️⃣ CUANDO NO EXISTE ARCHIVO GUARDADO (Punto de Partida)
+    public static final PlayerNeeds DEFAULT = new PlayerNeeds(
+            20,
+            20,
+            20,
+            20,
+            20,
+            20
+    );
 }
