@@ -3,7 +3,8 @@
 	"package": "dev.naranjarra.client.mixin",
 	"compatibilityLevel": "JAVA_25",
 	"client": [
-		"HideHudMixin"
+		"HideHudMixin",
+		"GameRendererMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
