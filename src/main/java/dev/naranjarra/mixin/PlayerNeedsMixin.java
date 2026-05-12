@@ -22,6 +22,7 @@ public class PlayerNeedsMixin {
         Player player = (Player) (Object) this;
 
         if (player.level().isClientSide()) return;
+        if (player.gameMode().isCreative()) return;
 
         tickCounter++;
 

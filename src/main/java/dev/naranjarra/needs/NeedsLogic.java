@@ -11,63 +11,35 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.storage.ServerLevelData;
 
 public class NeedsLogic {
+    static final float MAX_VALUE_NEED = 20;
+
     public static PlayerNeeds updateNeeds(Player player, PlayerNeeds currentNeeds) {
-        float newBladder = Math.max(0, currentNeeds.bladder() - 1f);
-        float newEnergy = Math.max(0, currentNeeds.energy() - 0.1f);
-        int newHunger = player.getFoodData().getFoodLevel();
-        float newHygiene = player.isInWater() ?
-                Math.min(20.0f, currentNeeds.hygiene() + 2.0f)
-                :
-                Math.max(0, currentNeeds.hygiene() - 0.5f);
+
 
         Level level = player.level();
         BlockPos pos = player.blockPosition();
 
-        // 💤 SUEÑO: Recuperación y Esfuerzo Físico
-        if (player.isSleeping()) {
-            // Se recupera mientras duerme en una cama
-            newEnergy = Mth.clamp(currentNeeds.energy() + 1.0f, 0f, 20f);
-        } else {
-            // Se cansa el TRIPLE de rápido si va corriendo (sprint)
-            float energyDrop = player.isSprinting() ? 0.3f : 0.1f;
-            newEnergy = Mth.clamp(currentNeeds.energy() - energyDrop, 0f, 20f);
-        }
+        // 1️⃣ CÁLCULOS INDIVIDUALES (Llamamos a los submétodos)
+        float newBladder = bladderLogic(currentNeeds.bladder());
+        float newEnergy = energyLogic(player, currentNeeds.energy(), level);
+        int newHunger = hungerLogic(player);
+        float newHygiene = hygieneLogic(player, currentNeeds.hygiene(), level);
 
-        //CONSECUENCIAS
+        // 2️⃣ CONSECUENCIAS CRUZADAS (Interacciones entre Needs)
+        // ⚠️ ACCIDENTE DE VEJIGA: Afecta el mundo y la higiene
         if (newBladder == 0 && currentNeeds.bladder() > 0) {
-            // Coloca un bloque de AGUA en los pies del Sim
             level.setBlockAndUpdate(pos, Blocks.WATER.defaultBlockState());
-
-            // Castigo secundario: La higiene baja a 0 instantáneamente
-            newBladder = 20.0f;
+            newBladder = MAX_VALUE_NEED;
             newHygiene = 0f;
         }
 
-        // 🤢 HIGIENE: Mal olor
-        if (newHygiene <= 0 && level instanceof ServerLevel serverLevel) {
-            // Spawnea partículas de HUMO para simular la suciedad
-            serverLevel.sendParticles(ParticleTypes.SMOKE,
-                    player.getX(), player.getY() + 1.0, player.getZ(),
-                    2, 0.5, 0.5, 0.5, 0.0);
-        }
+        // 3️⃣ ESTADOS Y EFECTOS
+        applyEnergyEffects(player, newEnergy, currentNeeds.energy(), level, pos);
 
-        // 💤 SUEÑO: Consecuencias progresivas
-        if (newEnergy <= 5.0f && newEnergy > 0) {
-            // ESTADO: Cansado (Lentitud al caminar y picar bloques)
-            player.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 60, 0, false, false, true));
-            player.addEffect(new MobEffectInstance(MobEffects.MINING_FATIGUE, 60, 0, false, false, true));
-        } else if (newEnergy == 0) {
-            // ESTADO: Desmayado (Pantalla negra)
-            player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 100, 0, false, false, true));
-
-            // GATILLO ÚNICO: Reproduce el ronquido SOLO en el instante en que llega a 0
-            if (currentNeeds.energy() > 0) {
-                level.playSound(null, pos, SoundEvents.HORSE_BREATHE_BABY, SoundSource.PLAYERS, 1.0f, 0.5f);
-            }
-        }
-
+        // 4️⃣ EMPAQUETADO FINAL (INMUTABLE)
         return new PlayerNeeds(
                 newBladder,
                 currentNeeds.fun(),
@@ -76,5 +48,79 @@ public class NeedsLogic {
                 newHygiene,
                 newHunger
         );
+    }
+
+    // --- 🧻 LÓGICA DE VEJIGA ---
+    private static float bladderLogic(float currentBladder) {
+        return Mth.clamp(currentBladder - 1f, 0f, MAX_VALUE_NEED);
+    }
+
+    // --- 🛏️ LÓGICA DE SUEÑO ---
+    private static float energyLogic(Player player, float currentEnergy, Level level) {
+        if (player.isSleeping()) {
+            if (level instanceof ServerLevel serverLevel && serverLevel.getServer().isSingleplayer()) {
+                // 1️⃣ LEEMOS el tiempo con el método válido
+                long currentTime = serverLevel.getOverworldClockTime();
+
+                // 2️⃣ ESCRIBIMOS el tiempo accediendo a la capa de DATOS del servidor
+                if (serverLevel.getLevelData() instanceof ServerLevelData serverData) {
+                    serverData.setGameTime(currentTime + 8000); // Adelantamos 8 horas (8000 ticks)
+                }
+
+                player.stopSleeping(); // Despertamos al Sim
+                return 20.0f; // Energía al máximo
+            } else {
+                // ⚡ MULTIPLAYER: Carga súper rápida en tiempo real
+                return Mth.clamp(currentEnergy + 0.5f, 0f, 20f);
+            }
+        } else {
+
+            // 🚶 DESGASTE NORMAL
+            float energyDrop = player.isSprinting() ? 0.3f : 0.1f;
+            return Mth.clamp(currentEnergy - energyDrop, 0f, 20f);
+        }
+    }
+
+    // --- 🍔 LÓGICA DE HAMBRE ---
+    private static int hungerLogic(Player player) {
+        return player.getFoodData().getFoodLevel();
+    }
+
+    // --- 🧼 LÓGICA DE HIGIENE ---
+    private static float hygieneLogic(Player player, float currentHygiene, Level level) {
+        float newHyg = player.isInWater() ?
+                Mth.clamp(currentHygiene + 2.0f, 0f, MAX_VALUE_NEED) :
+                Mth.clamp(currentHygiene - 0.5f, 0f, MAX_VALUE_NEED);
+
+        if (newHyg <= 0 && level instanceof ServerLevel serverLevel) {
+            serverLevel.sendParticles(ParticleTypes.SMOKE,
+                    player.getX(), player.getY() + 1.0, player.getZ(),
+                    2, 0.5, 0.5, 0.5, 0.0);
+        }
+        return newHyg;
+    }
+
+    // --- LOGICA DE DIVERSION
+    private static float funLogic(Player player, float currentFun) {
+        return Mth.clamp(currentFun - 0.5f, 0f, MAX_VALUE_NEED);
+    }
+
+    // --- LOGICA DE SOCIAL
+    private static float socialLogic(Player player, float currentSocial) {
+        return Mth.clamp(currentSocial - 0.5f, 0f, MAX_VALUE_NEED);
+    }
+
+
+    // --- 💤 EFECTOS DE SUEÑO ---
+    private static void applyEnergyEffects(Player player, float newEnergy, float oldEnergy, Level level, BlockPos pos) {
+        if (newEnergy <= 5.0f && newEnergy > 0) {
+            player.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 60, 0, false, false, true));
+            player.addEffect(new MobEffectInstance(MobEffects.MINING_FATIGUE, 60, 0, false, false, true));
+        } else if (newEnergy == 0) {
+            player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 100, 0, false, false, true));
+            if (oldEnergy > 0) {
+                level.playSound(null, pos, SoundEvents.HORSE_BREATHE_BABY, SoundSource.PLAYERS, 1.0f, 0.5f);
+            }
+        }
     }
 }
